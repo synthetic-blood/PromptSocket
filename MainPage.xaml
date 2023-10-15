@@ -1,0 +1,136 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
+             x:Class="Chat.MainPage"
+             xmlns:local="clr-namespace:Chat"
+             Shell.NavBarIsVisible="False">
+    <ContentPage.BindingContext>
+        <local:PromptSocketApp/>
+    </ContentPage.BindingContext>
+    <Grid BackgroundColor="Black" RowDefinitions="*,auto">
+        <SwipeView Grid.Row="0">
+            <CollectionView x:Name="LogView" Background="Black">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Label TextColor="White" Text="{Binding}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <SwipeView.LeftItems>
+                <SwipeItems SwipeBehaviorOnInvoked="RemainOpen">
+                    <SwipeItemView x:Name="SettingsSWI">
+                        <FlexLayout>
+                            <VerticalStackLayout Margin="0,0,15,0" Grid.RowSpan="2" Spacing="10">
+                                <!--Mode-->
+                                <HorizontalStackLayout>
+                                    <HorizontalStackLayout>
+                                        <Label Text="Mode" FontSize="18" FontAttributes="Bold"/>
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout x:Name="ModeHSK" Margin="0,-10,0,0" Spacing="10">
+                                        <Button Text="[Server" x:Name="ServerBUN" Clicked="SwitchMode"/>
+                                        <Label Text="/" VerticalOptions="Center"/>
+                                        <Button Text="Client]" x:Name="ClientBUN" IsEnabled="False" Clicked="SwitchMode"/>
+                                    </HorizontalStackLayout>
+                                </HorizontalStackLayout>
+
+                                <!--Buffer-->
+                                <HorizontalStackLayout>
+                                    <Label Text="Buffer Size" FontSize="18" FontAttributes="Bold"/>
+                                    <HorizontalStackLayout Margin="0,-10">
+                                        <Entry x:Name="BufferSizeENT" Text="1024" Keyboard="Numeric"/>
+                                        <Label VerticalOptions="Center" Text="B"/>
+                                    </HorizontalStackLayout>
+                                </HorizontalStackLayout>
+
+                                <!--Server-->
+                                <VerticalStackLayout x:Name="ServerSettings" Spacing="-5">
+                                    <Label Text="Server" FontSize="18" FontAttributes="Bold"/>
+                                    <HorizontalStackLayout>
+                                        <Label VerticalOptions="Center" Text="Broadcast"/>
+                                        <CheckBox/>
+                                    </HorizontalStackLayout>
+                                    <Label x:Name="PeerCounter" TextColor="Lime" Text="0 peer(s)"/>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+
+                            <Rectangle Margin="0,0,0,3" WidthRequest="3">
+                                <Rectangle.Background>
+                                    <LinearGradientBrush EndPoint="0,1">
+                                        <GradientStop Offset="0" Color="White"/>
+                                        <GradientStop Offset="1" Color="Transparent"/>
+                                    </LinearGradientBrush>
+                                </Rectangle.Background>
+                            </Rectangle>
+
+                            <VerticalStackLayout VerticalOptions="Center" Spacing="30">
+                                <Label Rotation="90" FlexLayout.AlignSelf="Center" Text="Settings" FontSize="18" FontAttributes="Bold"/>
+                                <Image Source="setting.png"/>
+                            </VerticalStackLayout>
+
+                        </FlexLayout>
+                    </SwipeItemView>
+                </SwipeItems>
+            </SwipeView.LeftItems>
+        </SwipeView>
+        <!--★-->
+        <!--★-->
+        <Grid Grid.Row="1" RowDefinitions="auto,auto" ColumnDefinitions="*,auto">
+            <SwipeView Grid.Row="0" Grid.Column="0" x:Name="EndpointSWP" VerticalOptions="Center">
+                <SwipeView.LeftItems>
+                    <SwipeItems SwipeBehaviorOnInvoked="RemainOpen">
+                        <SwipeItemView>
+                            <FlexLayout>
+                                <Picker x:Name="SavedEndpointsPKR" SelectedIndexChanged="SavedEndpointsPKR_SelectedIndexChanged"/>
+                                <Label VerticalOptions="Center" Text="★"/>
+                            </FlexLayout>
+                        </SwipeItemView>
+                    </SwipeItems>
+                </SwipeView.LeftItems>
+
+                <SwipeView.TopItems>
+                    <SwipeItems SwipeBehaviorOnInvoked="Close" Mode="Execute">
+                        <SwipeItemView>
+                            <Label x:Name="SaveLAB"/>
+                        </SwipeItemView>
+                        <SwipeItem Invoked="SaveEndpoint"/>
+                    </SwipeItems>
+                </SwipeView.TopItems>
+
+                <SwipeView.RightItems>
+                    <SwipeItems Mode="Execute">
+                        <SwipeItemView>
+                            <Label VerticalOptions="Center" Text="Remove" TextColor="Red"/>
+                        </SwipeItemView>
+                        <SwipeItem Invoked="RemoveSavedEndpoint"/>
+                    </SwipeItems>
+                </SwipeView.RightItems>
+
+                <Grid BackgroundColor="Black" ColumnDefinitions="*,auto,0.5*">
+                    <Entry Grid.Column="0" x:Name="HostENT" Text="" Placeholder="Host" TextChanged="Endpoint_TextChanged" Keyboard="Url" ReturnType="Next" FlexLayout.Grow="1" TextTransform="Lowercase"/>
+                    <Label Grid.Column="1" VerticalOptions="Center" Text=":"/>
+                    <Entry Grid.Column="2" x:Name="PortENT" Text="" Placeholder="Port" TextChanged="Endpoint_TextChanged" Keyboard="Numeric" MaxLength="5" FlexLayout.Grow="0.5" />
+                </Grid>
+            </SwipeView>
+            <HorizontalStackLayout Grid.Column="2">
+                <Button x:Name="SocketSwitch" IsEnabled="False" Text="Connect" Clicked="SocketSwitchConnect_Clicked"/>
+                <Label Text="/" VerticalOptions="Center"/>
+                <Button x:Name="ClearLogBUN"  BorderWidth="0" IsEnabled="False" Text="Clear Log"/>
+            </HorizontalStackLayout>
+
+            <Grid Grid.Row="1" Grid.ColumnSpan="3" ColumnDefinitions="*,auto">
+                <Editor x:Name="MessageENT" Grid.Column="0" MaximumHeightRequest="300" AutoSize="TextChanges" Placeholder="Message" TextChanged="MessageENT_TextChanged"/>
+                <Button x:Name="TransferBUN" Grid.Column="1" VerticalOptions="End" IsEnabled="False" Text="⇌" FontSize="30" Clicked="TransferBUN_Clicked"/>
+            </Grid>
+
+        </Grid>
+        <AbsoluteLayout HorizontalOptions="End">
+            <ActivityIndicator x:Name="WaitingACI"/>
+        </AbsoluteLayout>
+    </Grid>
+</ContentPage>
